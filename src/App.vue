@@ -10,7 +10,7 @@
           <message v-if="message" :message="message" />
 
           <!-- new note -->
-          <newNote :note="note" @addNote="addNote" />
+          <newNote :note="note" :status="status" @addNote="addNote" />
 
           <div class="note-header" style="margin: 36px 0">
             <!-- title -->
@@ -65,7 +65,7 @@
           </div>
 
           <!-- note list -->
-          <notes :notes="notesFilter" :grid="grid" @remove="removeNote" />
+          <notes :notes="notesFilter" :grid="grid" />
         </div>
       </section>
     </div>
@@ -77,6 +77,8 @@ import message from '@/components/Message.vue';
 import notes from '@/components/Notes.vue';
 import newNote from '@/components/NewNote.vue';
 import search from '@/components/Search.vue';
+
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -94,54 +96,19 @@ export default {
       note: {
         title: '',
         descr: '',
-        priority: [
-          {
-            value: 'Low priority',
-            name: 'low',
-            id: 1,
-          },
-          {
-            value: 'Medium priority',
-            name: 'medium',
-            id: 2,
-          },
-          {
-            value: 'High priority',
-            name: 'high',
-            id: 3,
-          },
-        ],
         status: 'low',
       },
-      notes: [
-        {
-          title: 'First Note',
-          descr: 'Description for first note',
-          date: new Date(Date.now()).toLocaleString(),
-          status: 'low',
-          editor: false,
-          id: 1,
-        },
-        {
-          title: 'Second Note',
-          descr: 'Description for second note',
-          date: new Date(Date.now()).toLocaleString(),
-          status: 'low',
-          editor: false,
-          id: 2,
-        },
-        {
-          title: 'Third Note',
-          descr: 'Description for third note',
-          date: new Date(Date.now()).toLocaleString(),
-          status: 'low',
-          editor: false,
-          id: 3,
-        },
-      ],
     };
   },
+  created() {
+    this.getNotes();
+    this.getStatus();
+  },
+
   computed: {
+    ...mapGetters('notes', ['notes']),
+    ...mapGetters('status', ['status']),
+
     notesFilter() {
       let array = this.notes;
       let search = this.search;
@@ -159,31 +126,30 @@ export default {
     },
   },
   methods: {
+    ...mapActions('notes', ['getNotes', 'getStatus', 'saveNote']),
+    ...mapActions('status', ['getStatus']),
+
     addNote() {
-      let { title, descr, status, editor } = this.note;
+      let { title, descr, status } = this.note;
 
       if (title === '') {
         this.message = 'title can`t be blank!';
         return false;
       }
-
-      this.notes.push({
+      const data = {
         title,
         descr,
         status,
-        editor,
+        isEditing: false,
         date: new Date(Date.now()).toLocaleString(),
-      });
+        id: this.notes.length + 1,
+      };
+
+      this.saveNote(data);
 
       this.message = null;
       this.note.title = '';
       this.note.descr = '';
-      this.note.status = 'low';
-      this.note.editor = false;
-    },
-    removeNote(id) {
-      const index = this.notes.findIndex((item) => item.id == id);
-      this.notes.splice(index, 1);
     },
   },
 };

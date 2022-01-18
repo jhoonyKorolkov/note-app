@@ -5,8 +5,7 @@
     <input v-model="note.title" type="text" />
     <label>Description</label>
     <textarea v-model="note.descr"></textarea>
-
-    <label class="new-note__radio" v-for="(item, i) in note.priority" :key="i">
+    <label class="new-note__radio" v-for="(item, i) in status" :key="i">
       <input class="radio" type="radio" :value="item.name" v-model="note.status" />
       <div class="custom">{{ item.value }}</div>
     </label>
@@ -22,7 +21,12 @@ export default {
       type: Object,
       required: true,
     },
+    status: {
+      type: Array,
+      required: true,
+    },
   },
+
   methods: {
     addNote() {
       this.$emit('addNote', this.note);

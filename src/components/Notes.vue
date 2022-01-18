@@ -1,14 +1,10 @@
 <template>
   <!-- note list -->
   <div class="notes">
-    <div
-      class="note"
-      :class="{ full: !grid, high: note.status == 'high', medium: note.status == 'medium' }"
-      v-for="note in notes"
-      :key="note.id"
-    >
+    <div class="note" :class="[{ full: !grid }, note.status]" v-for="note in notes" :key="note.id">
+      {{ note.status }}
       <div class="note-header" :class="{ full: !grid }">
-        <p v-if="!note.editor" @click="showEditor(note)">
+        <p v-if="!note.isEditing" @click="showEditor(note)">
           {{ note.title }}
         </p>
 
@@ -31,6 +27,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   props: {
     notes: {
@@ -49,28 +47,24 @@ export default {
     };
   },
   methods: {
-    removeNote(id) {
-      this.$emit('remove', id);
-    },
+    ...mapActions('notes', ['removeNote', 'updateNote']),
 
     showEditor(note) {
       this.saveTitle = note.title;
-      note.editor = true;
+      note.isEditing = true;
     },
 
     changeTitle(note) {
-      // confirm('Вы точно хотите сохранить заголовок?');
       this.saveTitle = '';
-      note.editor = false;
+      this.updateNote(note);
+      note.isEditing = false;
     },
 
     returnTitle(id) {
       confirm('Вы точно хотите отменить редактирование?');
       const note = this.notes.find((item) => item.id == id);
-      console.log(note);
       note.title = this.saveTitle;
-
-      note.editor = false;
+      note.isEditing = false;
     },
   },
 };
@@ -100,7 +94,7 @@ export default {
     width: 100%;
     text-align: center;
   }
-  &.medium {
+  &.normal {
     background: yellow;
   }
   &.high {
