@@ -3,7 +3,11 @@
   <div class="notes">
     <div
       class="note"
-      :class="{ full: !grid, high: note.status == 'high', medium: note.status == 'medium' }"
+      :class="{
+        full: !grid,
+        high: note.status == 'high',
+        medium: note.status == 'medium',
+      }"
       v-for="note in notes"
       :key="note.id"
     >
@@ -45,7 +49,6 @@ export default {
   data() {
     return {
       saveTitle: '',
-      hidden: false,
     };
   },
   methods: {
@@ -67,9 +70,7 @@ export default {
     returnTitle(id) {
       confirm('Вы точно хотите отменить редактирование?');
       const note = this.notes.find((item) => item.id == id);
-      console.log(note);
       note.title = this.saveTitle;
-
       note.editor = false;
     },
   },
